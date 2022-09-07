@@ -107,6 +107,9 @@ namespace ColorCounter
 
             Parallel.For(0, bitmap.Height, (int i) =>
             {
+                long blackIntermediate = 0;
+                long whiteIntermediate = 0;
+
                 for (int j = 0; j < bitmap.Width; j++)
                 {
                     int pixel = i * bitmap.Width + j;
@@ -119,13 +122,17 @@ namespace ColorCounter
                     // there are faster ways to do this but this will still be faster than on the CPU
                     if (grayScale == 0) // black
                     {
-                        Interlocked.Increment(ref blackCount);
+                        blackIntermediate++;
                     }
                     else if (grayScale == 255) // white
                     {
-                        Interlocked.Increment(ref whiteCount);
+                        whiteIntermediate++;
                     }
                 }
+
+                Interlocked.Add(ref blackCount, blackIntermediate);
+                Interlocked.Add(ref whiteCount, whiteIntermediate);
+
             });
 
             return (blackCount, whiteCount);
